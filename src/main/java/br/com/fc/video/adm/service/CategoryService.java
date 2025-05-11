@@ -8,4 +8,6 @@ import reactor.core.publisher.Mono;
 public interface CategoryService {
 
     Mono<CategoryResponseDTO> createCategory(CategoryCreateDTO dto);
+
+    Mono<CategoryResponseDTO> findById(Long id);
 }

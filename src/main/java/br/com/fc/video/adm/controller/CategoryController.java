@@ -28,4 +28,12 @@ public class CategoryController implements CategoryApi {
                         .body(savedCategory)
                 );
     }
+
+    @Override
+    public Mono<ResponseEntity<CategoryResponseDTO>> findOneCategory(Long id) {
+        log.info("Searching for category id {}", id);
+        return categoryService.findById(id)
+                .map(ResponseEntity::ok);
+
+    }
 }
