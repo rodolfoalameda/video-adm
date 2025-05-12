@@ -9,12 +9,12 @@ spring:
       max-size: 10
 
   flyway:
-    url: jdbc:mysql://localhost:3306/adm_video  # Mesmo banco que o R2DBC
+    url: jdbc:mysql://localhost:3306/adm_video
     user: root
     password: root
-    locations: classpath:db/migration  # Pasta onde ficarão os scripts SQL
+    locations: classpath:db/migration
     enabled: true
-    baseline-on-migrate: true  # Cria baseline se não existir
+    baseline-on-migrate: true
     clean-disabled: true
 
 logging:
