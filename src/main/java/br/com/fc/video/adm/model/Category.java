@@ -26,7 +26,7 @@ public class Category extends AuditableEntity {
     @Column("description")
     private String description;
 
-    @Column("active")
+    @Column("is_active")
     private Boolean isActive;
 
 

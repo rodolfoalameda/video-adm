@@ -31,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category entity = categoryMapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return categoryRepository.save(entity)
-                .doOnSuccess(saved -> log.info("Category successfully created: {}", saved))
+                .doOnSuccess(saved -> log.info("Category successfully created"))
                 .doOnError(error -> log.error("Error creating category: {}", error.getMessage(), error))
                 .map(categoryMapper::toResponseDTO);
     }
