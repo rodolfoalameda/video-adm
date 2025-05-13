@@ -1,6 +1,7 @@
 package br.com.fc.video.adm.api;
 
 import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
+import br.com.fc.video.adm.dto.request.CategoryUpdateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,4 +16,13 @@ public interface CategoryApi {
 
     @GetMapping("/{id}")
     Mono<ResponseEntity<CategoryResponseDTO>> findOneCategory(@PathVariable Long id);
+
+    @PutMapping("/{id}")
+    Mono<ResponseEntity<CategoryResponseDTO>> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateDTO category);
+
+    @DeleteMapping("/{id}")
+    Mono<ResponseEntity<Void>> deactivateCategory(@PathVariable Long id);
+
+    @PutMapping("/{id}/reactivate")
+    Mono<ResponseEntity<Void>> reactivateCategory(@PathVariable Long id);
 }

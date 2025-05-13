@@ -2,6 +2,7 @@ package br.com.fc.video.adm.controller;
 
 import br.com.fc.video.adm.api.CategoryApi;
 import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
+import br.com.fc.video.adm.dto.request.CategoryUpdateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
 import br.com.fc.video.adm.service.impl.CategoryServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,26 @@ public class CategoryController implements CategoryApi {
         return categoryService.findById(id)
                 .map(ResponseEntity::ok);
 
+    }
+
+    @Override
+    public Mono<ResponseEntity<CategoryResponseDTO>> updateCategory(Long id, CategoryUpdateDTO category) {
+        log.info("Updating category id {} ", id);
+        return categoryService.updateCategory(id, category)
+                .map(ResponseEntity::ok);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deactivateCategory(Long id) {
+        log.info("Deactivating category id {}", id);
+        return categoryService.deactivateCategory(id)
+                .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> reactivateCategory(Long id) {
+        log.info("Reactivating category id {}", id);
+        return categoryService.reactivateCategory(id)
+                .thenReturn(ResponseEntity.noContent().build());
     }
 }

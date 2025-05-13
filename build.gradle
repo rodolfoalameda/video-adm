@@ -34,6 +34,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
     // Lombok & MapStruct
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

@@ -15,10 +15,10 @@ public abstract class AuditableEntity {
     @Column("created_at")
     private LocalDateTime createdAt;
 
-    @Column("updatedAt")
+    @Column("updated_at")
     private LocalDateTime updatedAt;
 
-    @Column("deletedAt")
+    @Column("deleted_at")
     private LocalDateTime deletedAt;
 
 

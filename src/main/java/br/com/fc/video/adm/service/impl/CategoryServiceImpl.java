@@ -1,6 +1,7 @@
 package br.com.fc.video.adm.service.impl;
 
 import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
+import br.com.fc.video.adm.dto.request.CategoryUpdateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
 import br.com.fc.video.adm.exception.CustomException;
 import br.com.fc.video.adm.mapper.CategoryMapper;
@@ -21,7 +22,8 @@ import java.time.temporal.ChronoUnit;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-    public static final String CATEGORIA_NÃO_ENCONTRADA = "Categoria não encontrada";
+    public static final String CATEGORIA_NÃO_ENCONTRADA = "Category not founded";
+    public static final String CATEGORY_ALREADY_DEACTIVATED = "Category already deactivated";
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -42,5 +44,56 @@ public class CategoryServiceImpl implements CategoryService {
                 .doOnSuccess(category -> log.info("Successfully accessed the database"))
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
                 .map(categoryMapper::toResponseDTO);
+    }
+
+    @Override
+    public Mono<CategoryResponseDTO> updateCategory(Long id, CategoryUpdateDTO dto) {
+        return categoryRepository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
+                .flatMap(category -> {
+                    category.setName(dto.name());
+                    category.setDescription(dto.description());
+                    category.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                    return categoryRepository.save(category);
+                })
+                .map(categoryMapper::toResponseDTO)
+                .onErrorResume(Exception.class, error -> {
+                    log.error("Error updating category: {}", error.getMessage(), error);
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating category"));
+                });
+    }
+
+    @Override
+    public Mono<Void> deactivateCategory(Long id) {
+        return categoryRepository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
+                .flatMap(category -> {
+                    if (Boolean.FALSE.equals(category.getIsActive())) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, CATEGORY_ALREADY_DEACTIVATED));
+                    }
+                    category.setIsActive(false);
+                    category.setDeletedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                    return categoryRepository.save(category);
+                })
+                .doOnSuccess(saved -> log.info("Category successfully deactivated"))
+                .doOnError(error -> log.error("Error deactivating category: {}", error.getMessage(), error))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> reactivateCategory(Long id) {
+        return categoryRepository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
+                .flatMap(category -> {
+                    if (Boolean.TRUE.equals(category.getIsActive())) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Category already activated"));
+                    }
+                    category.setIsActive(true);
+                    category.setDeletedAt(null);
+                    return categoryRepository.save(category);
+                })
+                .doOnSuccess(saved -> log.info("Category successfully reactivated"))
+                .doOnError(error -> log.error("Error reactivating category: {}", error.getMessage(), error))
+                .then();
     }
 }
