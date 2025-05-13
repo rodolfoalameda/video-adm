@@ -51,8 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
                 .flatMap(category -> {
-                    category.setName(dto.name());
-                    category.setDescription(dto.description());
+                    categoryMapper.updateCategoryFromDto(dto, category);
                     category.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
                     return categoryRepository.save(category);
                 })
