@@ -10,6 +10,9 @@ import br.com.fc.video.adm.repository.CategoryRepository;
 import br.com.fc.video.adm.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -94,5 +97,18 @@ public class CategoryServiceImpl implements CategoryService {
                 .doOnSuccess(saved -> log.info("Category successfully reactivated"))
                 .doOnError(error -> log.error("Error reactivating category: {}", error.getMessage(), error))
                 .then();
+    }
+
+    @Override
+    public Mono<Page<CategoryResponseDTO>> findAllCategory(Pageable pageable) {
+        return categoryRepository.findAllBy(pageable)
+                .map(categoryMapper::toResponseDTO)
+                .collectList()
+                .zipWith(categoryRepository.countAll())
+                .map(tuple -> new PageImpl<>(
+                        tuple.getT1(),
+                        pageable,
+                        tuple.getT2()
+                ));
     }
 }

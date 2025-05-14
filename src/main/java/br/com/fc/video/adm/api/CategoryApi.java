@@ -4,6 +4,7 @@ import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
 import br.com.fc.video.adm.dto.request.CategoryUpdateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -25,4 +26,10 @@ public interface CategoryApi {
 
     @PutMapping("/{id}/reactivate")
     Mono<ResponseEntity<Void>> reactivateCategory(@PathVariable Long id);
+
+    @GetMapping
+    Mono<ResponseEntity<Page<CategoryResponseDTO>>> findAllCategories(@RequestParam(defaultValue = "0") int page,
+                                                                      @RequestParam(defaultValue = "10") int size,
+                                                                      @RequestParam(defaultValue = "name") String sort,
+                                                                      @RequestParam(defaultValue = "ASC") String direction);
 }

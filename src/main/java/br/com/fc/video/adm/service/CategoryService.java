@@ -3,6 +3,8 @@ package br.com.fc.video.adm.service;
 import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
 import br.com.fc.video.adm.dto.request.CategoryUpdateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Mono;
 
 
@@ -17,4 +19,6 @@ public interface CategoryService {
     Mono<Void> deactivateCategory(Long id);
 
     Mono<Void> reactivateCategory(Long id);
+
+    Mono<Page<CategoryResponseDTO>> findAllCategory(Pageable pageable);
 }

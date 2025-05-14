@@ -7,6 +7,10 @@ import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
 import br.com.fc.video.adm.service.impl.CategoryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -57,5 +61,20 @@ public class CategoryController implements CategoryApi {
         log.info("Reactivating category id {}", id);
         return categoryService.reactivateCategory(id)
                 .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @Override
+    public Mono<ResponseEntity<Page<CategoryResponseDTO>>> findAllCategories(int page,
+                                                                             int size,
+                                                                             String sort,
+                                                                             String direction) {
+
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+
+        log.info("Reading all categories");
+        return categoryService.findAllCategory(pageable)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.noContent().build());
     }
 }
