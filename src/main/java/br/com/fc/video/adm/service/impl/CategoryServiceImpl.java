@@ -37,8 +37,11 @@ public class CategoryServiceImpl implements CategoryService {
         entity.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return categoryRepository.save(entity)
                 .doOnSuccess(saved -> log.info("Category successfully created"))
-                .doOnError(error -> log.error("Error creating category: {}", error.getMessage(), error))
-                .map(categoryMapper::toResponseDTO);
+                .map(categoryMapper::toResponseDTO)
+                .onErrorResume(Exception.class, error -> {
+                    log.error("Error creating category: {}", error.getMessage(), error);
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error creating category"));
+                });
     }
 
     @Override
@@ -78,7 +81,10 @@ public class CategoryServiceImpl implements CategoryService {
                     return categoryRepository.save(category);
                 })
                 .doOnSuccess(saved -> log.info("Category successfully deactivated"))
-                .doOnError(error -> log.error("Error deactivating category: {}", error.getMessage(), error))
+                .onErrorResume(Exception.class, error -> {
+                    log.error("Error creating category: {}", error.getMessage(), error);
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deactivating category"));
+                })
                 .then();
     }
 
@@ -95,7 +101,10 @@ public class CategoryServiceImpl implements CategoryService {
                     return categoryRepository.save(category);
                 })
                 .doOnSuccess(saved -> log.info("Category successfully reactivated"))
-                .doOnError(error -> log.error("Error reactivating category: {}", error.getMessage(), error))
+                .onErrorResume(Exception.class, error -> {
+                    log.error("Error creating category: {}", error.getMessage(), error);
+                    return Mono.error(new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reactivating category"));
+                })
                 .then();
     }
 
