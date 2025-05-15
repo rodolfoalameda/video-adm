@@ -1,6 +1,8 @@
 package br.com.fc.video.adm.model;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -21,6 +23,8 @@ public class Category extends AuditableEntity {
     private Long id;
 
     @Column("name")
+    @NotBlank(message = "Name is required")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
     private String name;
 
     @Column("description")
