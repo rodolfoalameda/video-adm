@@ -27,6 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     public static final String CATEGORIA_NÃO_ENCONTRADA = "Category not founded";
     public static final String CATEGORY_ALREADY_DEACTIVATED = "Category already deactivated";
+    public static final String CATEGORY_ALREADY_ACTIVATED = "Category already activated";
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -94,7 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, CATEGORIA_NÃO_ENCONTRADA)))
                 .flatMap(category -> {
                     if (Boolean.TRUE.equals(category.getIsActive())) {
-                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Category already activated"));
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, CATEGORY_ALREADY_ACTIVATED));
                     }
                     category.setIsActive(true);
                     category.setDeletedAt(null);

@@ -1,7 +1,8 @@
-package br.com.fc.video.adm.category.service.create;
+package br.com.fc.video.adm.category.create;
 
 import br.com.fc.video.adm.dto.request.CategoryCreateDTO;
 import br.com.fc.video.adm.dto.response.CategoryResponseDTO;
+import br.com.fc.video.adm.exception.CustomException;
 import br.com.fc.video.adm.mapper.CategoryMapper;
 import br.com.fc.video.adm.model.Category;
 import br.com.fc.video.adm.repository.CategoryRepository;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -26,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryServiceUnitTest {
+class CreateCategoryServiceUnitTest {
 
     @Mock
     private CategoryRepository categoryRepository;
@@ -76,40 +78,27 @@ class CategoryServiceUnitTest {
     }
 
     @Test
-    void name_ShouldFailWhenBlankOrEmpty() {
+    void createCategory_WhenRepositoryFails_ShouldReturnCustomException() {
 
-        String[] invalidNames = {"", "   "};
+        CategoryCreateDTO validDTO = new CategoryCreateDTO("Livros", "Descrição válida", true);
+        Category validEntity = new Category();
+        validEntity.setName("Livros");
 
-        for (String invalidName : invalidNames) {
+        RuntimeException simulatedError = new RuntimeException("Database connection failed");
 
-            CategoryCreateDTO dto = new CategoryCreateDTO(invalidName, "Descrição válida", true);
-            Set<ConstraintViolation<CategoryCreateDTO>> violations = validateDTO(dto);
+        when(categoryMapper.toEntity(validDTO)).thenReturn(validEntity);
+        when(categoryRepository.save(validEntity)).thenReturn(Mono.error(simulatedError));
 
-            assertFalse(violations.isEmpty());
+        StepVerifier.create(categoryService.createCategory(validDTO))
+                .expectErrorSatisfies(error -> {
 
-            boolean hasCorrectMessage = violations.stream()
-                    .anyMatch(v -> v.getMessage().equals("Name is required"));
+                    assertTrue(error instanceof CustomException);
 
-            assertTrue(hasCorrectMessage);
-        }
-    }
+                    CustomException customEx = (CustomException) error;
 
-    @Test
-    void name_ShouldFailWhenShorterThan3Characters() {
-
-        String[] invalidNames = {"a", "ab", "1", "12"};
-
-        for (String invalidName : invalidNames) {
-
-            CategoryCreateDTO dto = new CategoryCreateDTO(invalidName, "Descrição válida", true);
-            Set<ConstraintViolation<CategoryCreateDTO>> violations = validateDTO(dto);
-
-            assertFalse(violations.isEmpty());
-
-            boolean hasCorrectMessage = violations.stream()
-                    .anyMatch(v -> v.getMessage().equals("Name must be at least 3 characters long"));
-
-            assertTrue(hasCorrectMessage);
-        }
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, customEx.getStatus());
+                    assertEquals("Error creating category", customEx.getMessage());
+                })
+                .verify();
     }
 }

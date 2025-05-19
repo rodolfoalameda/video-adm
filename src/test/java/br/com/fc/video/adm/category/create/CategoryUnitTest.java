@@ -1,4 +1,4 @@
-package br.com.fc.video.adm.category.entity;
+package br.com.fc.video.adm.category.create;
 
 import br.com.fc.video.adm.model.Category;
 import jakarta.validation.Validation;
